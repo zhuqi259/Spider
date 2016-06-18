@@ -6,5 +6,5 @@
 3. 切换到虚拟环境
 
 ##BeautifulSoup
-4. pip install beautifulsoup4
-5. 测试BeautifulSoup
+1. pip install beautifulsoup4
+2. 测试BeautifulSoup
