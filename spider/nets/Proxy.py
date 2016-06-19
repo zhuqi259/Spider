@@ -8,15 +8,13 @@ Dependencies:
 from bs4 import BeautifulSoup
 import random
 import os
+from utils.FileUtils import read_data
+
+__proxy_filename__ = os.path.join(os.path.pardir, "data/cn-proxy.com.html")
 
 
-def get_html_data(filename):
-    with open(filename, 'rb') as f:
-        return f.read()
-
-
-def get_proxy_from_cnproxy(filename):
-    html_doc = get_html_data(filename).decode('utf-8')
+def get_proxy_from_cnproxy(filename=__proxy_filename__):
+    html_doc = read_data(filename).decode('utf-8')
     soup = BeautifulSoup(html_doc, 'html.parser')
     tbodys = soup.find_all("tbody")
     proxies = []
@@ -32,7 +30,6 @@ def get_proxy_from_cnproxy(filename):
 
 
 if __name__ == "__main__":
-    proxy_filename = os.path.join(os.path.pardir, "data/cn-proxy.com.html")
-    proxy = get_proxy_from_cnproxy(proxy_filename)
+    proxy = get_proxy_from_cnproxy()
     ip, port = proxy
     print("{0}:{1}".format(ip, port))

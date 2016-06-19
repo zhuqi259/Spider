@@ -1,4 +1,4 @@
-#python Spider
+#python3 Spider
 
 ##virtualenvwrapper
 1. pip install virtualenvwrapper
