@@ -110,7 +110,7 @@ def doSomethingByThread(poolsize=5):
             add_2_urls(__prefix__ + head + no, 2001, 2300)
             add_2_urls(__prefix__ + head + no, 4001, 4300)
 
-    real_parse = functools.partial(parse, timeout=5, count=3)
+    real_parse = functools.partial(parse, timeout=60, count=3)
 
     # Make the Pool of workers
     pool = ThreadPool(poolsize)
