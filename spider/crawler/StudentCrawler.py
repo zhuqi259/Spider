@@ -57,8 +57,8 @@ class Student:
             self.id, self.username, self.gender, self.department, self.major, self.teacher, self.telephone, self.email)
 
 
-def parse(url, timeout, count):
-    flag, html_doc = url_open(url, timeout=timeout, count=count)
+def parse(url, timeout, count, interval):
+    flag, html_doc = url_open(url, timeout=timeout, count=count, interval=interval)
     if flag:
         html_doc = html_doc.decode('gbk')
         soup = BeautifulSoup(html_doc, 'html.parser')
@@ -110,7 +110,7 @@ def doSomethingByThread(poolsize=5):
             add_2_urls(__prefix__ + head + no, 2001, 2300)
             add_2_urls(__prefix__ + head + no, 4001, 4300)
 
-    real_parse = functools.partial(parse, timeout=60, count=3)
+    real_parse = functools.partial(parse, timeout=60, count=3, interval=0.2)
 
     # Make the Pool of workers
     pool = ThreadPool(poolsize)

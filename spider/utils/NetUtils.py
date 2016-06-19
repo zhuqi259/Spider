@@ -9,9 +9,9 @@ from utils.FileUtils import exists
 import time
 
 
-def url_open(url, timeout, count, proxy_in_use=False, ua_in_use=True):
+def url_open(url, timeout, count, interval, proxy_in_use=False, ua_in_use=True):
     def real_url_open():
-        time.sleep(0.5)
+        time.sleep(interval)
         if proxy_in_use:
             # proxy
             proxy = get_proxy_from_cnproxy()
@@ -50,7 +50,7 @@ def url_open(url, timeout, count, proxy_in_use=False, ua_in_use=True):
 
 def save_img(pic_url, save_path):
     if not exists(save_path):
-        flag, pic = url_open(pic_url, timeout=60)
+        flag, pic = url_open(pic_url, timeout=60, count=3, interval=0.1)
         if flag:
             with open(save_path, "wb") as f:
                 f.write(pic)
