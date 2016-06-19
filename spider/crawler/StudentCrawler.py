@@ -8,14 +8,14 @@ __author__ = 'zhuqi259'
 from bs4 import BeautifulSoup
 import logging
 import codecs
-import time
 from multiprocessing.dummy import Pool as ThreadPool
 from utils.NetUtils import *
 from utils.FileUtils import *
+import functools
 
 __base__ = "http://gim.jlu.edu.cn"
 __storage__ = "E:\\student"
-__storage_file__ = "D:\\gim.csv"
+__storage_file__ = "E:\\gim_student.csv"
 
 # 借助logging多线程写入文件
 root_logger = logging.getLogger()
@@ -57,35 +57,36 @@ class Student:
             self.id, self.username, self.gender, self.department, self.major, self.teacher, self.telephone, self.email)
 
 
-def parse(url):
-    time.sleep(0.1)
-    html_doc = url_open(url).decode('gbk')
-    soup = BeautifulSoup(html_doc, 'html.parser')
-    mytable = soup.find('table', class_='mytable')
-    if mytable:
-        s = Student()
-        trs = mytable.find_all('tr')
-        tds = trs[0].find_all('td')
-        s.id = tds[1].string
-        s.username = tds[3].string
-        s.gender = 0 if tds[5].string == u'男' else 1
-        tds = trs[1].find_all('td')
-        s.department = tds[1].string
-        s.major = tds[3].string
-        s.teacher = tds[5].string
-        tds = trs[4].find_all('td')
-        s.telephone = tds[3].string
-        tds = trs[5].find_all('td')
-        s.email = tds[3].string
+def parse(url, timeout, count):
+    flag, html_doc = url_open(url, timeout=timeout, count=count)
+    if flag:
+        html_doc = html_doc.decode('gbk')
+        soup = BeautifulSoup(html_doc, 'html.parser')
+        mytable = soup.find('table', class_='mytable')
+        if mytable:
+            s = Student()
+            trs = mytable.find_all('tr')
+            tds = trs[0].find_all('td')
+            s.id = tds[1].string
+            s.username = tds[3].string
+            s.gender = 0 if tds[5].string == u'男' else 1
+            tds = trs[1].find_all('td')
+            s.department = tds[1].string
+            s.major = tds[3].string
+            s.teacher = tds[5].string
+            tds = trs[4].find_all('td')
+            s.telephone = tds[3].string
+            tds = trs[5].find_all('td')
+            s.email = tds[3].string
 
-        pic = mytable.find('img')
-        pic_url = __base__ + pic.get('src')
-        save_path = os.path.join(__storage__, s.id + ".jpg")
-        save_img(pic_url, save_path)  # 保存图片
+            pic = mytable.find('img')
+            pic_url = __base__ + pic.get('src')
+            save_path = os.path.join(__storage__, s.id + ".jpg")
+            save_img(pic_url, save_path)  # 保存图片
 
-        logging.info(str(s))
-    else:
-        print("-")
+            logging.info(str(s))
+        else:
+            print("-")
 
 
 def add_2_urls(prefix, begin, end):
@@ -94,7 +95,7 @@ def add_2_urls(prefix, begin, end):
         __urls__.append(url)
 
 
-def doSomethingByThread():
+def doSomethingByThread(poolsize=5):
     # 图片下载地址
     if not exists(__storage__):
         os.makedirs(__storage__)
@@ -109,11 +110,13 @@ def doSomethingByThread():
             add_2_urls(__prefix__ + head + no, 2001, 2300)
             add_2_urls(__prefix__ + head + no, 4001, 4300)
 
+    real_parse = functools.partial(parse, timeout=5, count=3)
+
     # Make the Pool of workers
-    pool = ThreadPool(10)
+    pool = ThreadPool(poolsize)
     # Open the urls in their own threads and return the results
     # results = pool.map(parse, __urls__)
-    pool.map(parse, __urls__)
+    pool.map(real_parse, __urls__)
     # close the pool and wait for the work to finish
     pool.close()
     pool.join()
